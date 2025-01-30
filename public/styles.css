@@ -1,0 +1,295 @@
+/* =========================================
+   Reset and Base Styles
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    color: #f0f0f0;
+    background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: #4da6ff;
+}
+
+a:hover {
+    color: #80c1ff;
+}
+
+h1,
+h2 {
+    margin: 15px 0;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+/* =========================================
+   Layout Styles
+========================================= */
+
+header,
+footer {
+    background-color: transparent;
+    padding: 20px 0;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+header h1 {
+    font-size: 36px;
+}
+
+footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+footer p {
+    font-size: 16px;
+    color: #bbbbbb;
+}
+
+main {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+}
+
+/* =========================================
+   Instructions Section
+========================================= */
+
+.instructions-section {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+}
+
+.instructions-section h2 {
+    color: #ffffff;
+}
+
+.instructions-section p,
+.instructions-section ul {
+    font-size: 16px;
+    color: #e0e0e0;
+    line-height: 1.8;
+    list-style-position: inside;
+}
+
+.instructions-section code {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: #ffffff;
+}
+
+.example-video {
+    height: 460px;
+    width: 260px;
+    background-color: #000;
+}
+
+/* =========================================
+   Card Styles
+========================================= */
+
+.card {
+    background-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.card h2 {
+    color: #ffffff;
+}
+
+.card p,
+.card label,
+.card input,
+.card button {
+    color: #e0e0e0;
+}
+
+/* =========================================
+   Button Styles
+========================================= */
+
+.btn,
+.file-upload-label {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background-color: #1e3c72;
+    color: #ffffff;
+    transition: background-color 0.3s;
+}
+
+.btn:hover,
+.file-upload-label:hover {
+    background-color: #122240;
+}
+
+.btn:disabled,
+.btn[disabled],
+.file-upload-label:disabled,
+.file-upload-label[disabled] {
+    cursor: not-allowed;
+    background-color: #555555;
+    color: #aaaaaa;
+    opacity: 0.6;
+}
+
+.btn.primary {
+    background-color: #3a6073;
+}
+
+.btn.primary:hover {
+    background-color: #1c2833;
+}
+
+.file-upload-label input[type='file'] {
+    display: none;
+}
+
+/* =========================================
+   Video Player Styles
+========================================= */
+
+#main-video-player {
+    height: 460px;
+    width: 260px;
+    background-color: #000;
+    margin-bottom: 20px;
+}
+
+.main-video-controls {
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   Hook Videos Grid Styles
+========================================= */
+
+.hook-videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.hook-video-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hook-video-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.hook-video-item video {
+    width: 100%;
+    height: auto;
+}
+
+.hook-checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 15px;
+    background-color: transparent;
+}
+
+.hook-checkbox-container input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}
+
+.hook-checkbox-container span {
+    font-size: 18px;
+    color: #e0e0e0;
+}
+
+/* =========================================
+   Ad Name Input Styles
+========================================= */
+
+#ad-name-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px;
+    font-size: 18px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+#ad-name-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* =========================================
+   Submit Section Styles
+========================================= */
+
+.submit-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* =========================================
+   Responsive Styles
+========================================= */
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section-header h2 {
+        margin-bottom: 10px;
+    }
+}
+
+/* =========================================
+   General Text and Label Styles
+========================================= */
+
+p,
+label,
+span {
+    color: #e0e0e0;
+}

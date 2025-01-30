@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Internal Tool UI</title>
+        <!-- Include Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <!-- Use a modern, professional font -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Remove hooksTool/ to test locally -->
+        <link rel="stylesheet" href="hooksTool/styles.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Hook Tester</h1>
+        </header>
+        <main>
+            <section class="instructions-section">
+                <h2>How to Use This Tool</h2>
+                <ul>
+                    <li>Upload your main video.</li>
+                    <li>Select one or more hook videos from the list below.</li>
+                    <li>Enter the name of your ad.</li>
+                    <li>
+                        Click the upload button to start the process. Your main
+                        video will be stitched with each of the selected hook
+                        videos. This will take a minute or two.
+                    </li>
+                    <li>
+                        Your ads will be named using your provided ad name,
+                        appended with <code>-HOOK-randomId</code> and be
+                        uploaded to Facebook in a few minutes.
+                    </li>
+                    <li>
+                        Note: this currently <strong>only</strong> works with
+                        vertical 9:16 main videos and will upload to the Vincent
+                        CC X 1 Roofing Ad Account
+                    </li>
+                </ul>
+                <h2>How It Works</h2>
+                <p>
+                    This tool automatically combines the selected videos and
+                    uploads the final videos as Facebook ads using the existing
+                    Facebook ad testing app and automation.<br />
+
+                    It uses <strong>Creatomate</strong> to merge the videos,
+                    then triggers <strong>Make.com</strong> webhook events that
+                    download the processed videos and places them in the
+                    designated <strong>Google Drive</strong> folder, where
+                    another <strong>Make.com</strong> scenario will upload them
+                    as a Facebook ads.
+                </p>
+
+                <h2>Example Output Video</h3>
+                <video controls class="example-video">
+                    <source
+                        src="https://storage.googleapis.com/hooks-tools/EXAMPLE-R-HOOK-36a2b46c-5c95-4f62-8256-47da5c8709c5.mp4"
+                        type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                </video>
+            </section>
+
+            <section class="main-video-section card">
+                <h2>Main Video</h2>
+                <video id="main-video-player" controls></video>
+                <div class="main-video-controls">
+                    <label class="file-upload-label">
+                        <input
+                            type="file"
+                            id="main-video-upload"
+                            accept="video/mp4"
+                        />
+                        Choose Video
+                    </label>
+                </div>
+            </section>
+            
+            <section class="hook-video-section card">
+                <div class="section-header">
+                    <h2>Hook Videos</h2>
+                    <button id="select-all-hooks-button" class="btn">
+                        Select All
+                    </button>
+                </div>
+                <!-- Hook Videos Grid -->
+                <div id="hook-videos-container" class="hook-videos-grid"></div>
+            </section>
+
+            <section class="ad-name-section card">
+                <h2>Ad Name</h2>
+                <input
+                    type="text"
+                    id="ad-name-input"
+                    placeholder="Enter Ad Name"
+                />
+            </section>
+
+
+            <section class="submit-section">
+                <button id="submit-button" class="btn primary">Submit</button>
+            </section>
+        </main>
+
+
+        <footer>
+            <p>&copy; 2025 Hook Tester</p>
+        </footer>
+        <!-- Remove hooksTool/ to test locally -->
+        <script src="hooksTool/script.js"></script>
+    </body>
+</html>
+
