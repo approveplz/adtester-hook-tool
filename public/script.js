@@ -75,8 +75,10 @@ async function fetchHookVideosFromGcs() {
                 );
             })
             .map((item) => ({
-                name: item.name,
-                // Public URL to access the file (assuming the objects are publicly readable)
+                // Extract just the filename without path and extension
+                name: item.name
+                    .replace(`${CONFIG.FOLDER_NAME}/`, '') // Remove folder path
+                    .replace('.mp4', ''), // Remove extension
                 url: `https://storage.googleapis.com/${
                     CONFIG.BUCKET_NAME
                 }/${encodeURIComponent(item.name)}`,
@@ -124,8 +126,10 @@ async function fetchCreatomateApiKey() {
     }
 }
 
-async function uploadToCreatomate(mainVideoUrl, hookVideoUrl, adName, apiKey) {
+async function uploadToCreatomate(mainVideoUrl, hookVideo, adName, apiKey) {
     const url = 'https://api.creatomate.com/v1/renders';
+
+    const { name: hookVideoName, url: hookVideoUrl } = hookVideo;
 
     const data = {
         source: CONFIG.CREATOMATE_TEMPLATE,
@@ -136,6 +140,7 @@ async function uploadToCreatomate(mainVideoUrl, hookVideoUrl, adName, apiKey) {
         metadata: JSON.stringify({
             main_video_url: mainVideoUrl,
             ad_name: adName,
+            hook_name: hookVideoName,
         }),
         webhook_url: `${CONFIG.BASE_SERVER_URL}/api/creatomate_webhook`,
     };
@@ -321,7 +326,7 @@ async function processVideos(mainVideoUrl, hookVideos, apiKey) {
             }
             return uploadToCreatomate(
                 mainVideoUrl,
-                hookVideo.url,
+                hookVideo,
                 state.adName,
                 apiKey
             );
@@ -342,6 +347,8 @@ async function handleSubmit(submitButton, hookVideos) {
         alert(validationError);
         return;
     }
+
+    console.log('State before submission:', state);
 
     try {
         updateSubmitButtonStatus(submitButton, 'Uploading...', true);

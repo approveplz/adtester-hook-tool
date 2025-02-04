@@ -34,7 +34,11 @@ app.post('/api/creatomate_webhook', express.json(), async (req, res) => {
 
         const metadata = JSON.parse(metadataJSON);
 
-        const { ad_name: adName, main_video_url: mainVideoUrl } = metadata;
+        const {
+            ad_name: adName,
+            main_video_url: mainVideoUrl,
+            hook_name: hookVideoName,
+        } = metadata;
 
         console.log(`Checking file at: ${mainVideoUrl}`);
         const checkResponse = await fetch(mainVideoUrl, {
@@ -73,7 +77,7 @@ app.post('/api/creatomate_webhook', express.json(), async (req, res) => {
             },
             body: JSON.stringify({
                 creatomate_url: creatomateUrl,
-                name: `${adName}-HOOK-${id}.mp4`,
+                name: `${adName}-HOOK-${hookVideoName}.mp4`,
                 id,
             }),
         });
