@@ -8,7 +8,7 @@ interface Config {
     BUCKET_NAME: string;
     FOLDER_NAME: string;
     BASE_SERVER_URL: string;
-    CREATOMATE_TEMPLATE: Record<string, any>; // Better than 'any' for object type
+    CREATOMATE_TEMPLATE: Record<string, any>;
 }
 
 const CONFIG: Config = {
