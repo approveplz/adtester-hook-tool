@@ -1,7 +1,17 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+
 // =============================================
 // Configuration
 // =============================================
-const CONFIG = {
+interface Config {
+    BUCKET_NAME: string;
+    FOLDER_NAME: string;
+    BASE_SERVER_URL: string;
+    CREATOMATE_TEMPLATE: Record<string, any>; // Better than 'any' for object type
+}
+
+const CONFIG: Config = {
     BUCKET_NAME: 'hooks-tools',
     FOLDER_NAME: 'hooks-with-subs',
     BASE_SERVER_URL:
@@ -38,9 +48,18 @@ const CONFIG = {
 // =============================================
 // State Management
 // =============================================
-const state = {
+interface AppState {
+    mainVideoFile: File | null;
+    selectedHookVideos: Set<string>;
+    allHooksSelected: boolean;
+    adName: string;
+    mainVideoWidth: number | null;
+    mainVideoHeight: number | null;
+}
+
+const state: AppState = {
     mainVideoFile: null,
-    selectedHookVideos: new Set(),
+    selectedHookVideos: new Set<string>(),
     allHooksSelected: false,
     adName: '',
     mainVideoWidth: null,
@@ -51,7 +70,29 @@ const state = {
 // API Helpers
 // =============================================
 
-async function fetchHookVideosFromGcs() {
+// Add interfaces for API responses
+interface GCSItem {
+    name: string;
+    contentType: string;
+}
+
+interface GCSResponse {
+    items: GCSItem[];
+}
+
+interface CreatomateRenderResponse {
+    id: string;
+    status: string;
+    error?: string;
+    result?: {
+        url: string;
+        thumbnailUrl: string;
+    };
+}
+
+async function fetchHookVideosFromGcs(): Promise<
+    Array<{ name: string; url: string }>
+> {
     const API_URL = `https://storage.googleapis.com/storage/v1/b/${CONFIG.BUCKET_NAME}/o?prefix=${CONFIG.FOLDER_NAME}`;
     try {
         const response = await fetch(API_URL);
@@ -60,25 +101,23 @@ async function fetchHookVideosFromGcs() {
                 `GCS list API request failed with status ${response.status}`
             );
         }
-        const data = await response.json();
+        const data: GCSResponse = await response.json();
 
         if (!data.items) {
-            // No items found (possibly empty bucket or no permission)
             return [];
         }
 
         const hookVideos = data.items
-            .filter((item) => {
+            .filter((item: GCSItem) => {
                 return (
                     item.contentType === 'video/mp4' ||
                     item.name.endsWith('.mp4')
                 );
             })
-            .map((item) => ({
-                // Extract just the filename without path and extension
+            .map((item: GCSItem) => ({
                 name: item.name
-                    .replace(`${CONFIG.FOLDER_NAME}/`, '') // Remove folder path
-                    .replace('.mp4', ''), // Remove extension
+                    .replace(`${CONFIG.FOLDER_NAME}/`, '')
+                    .replace('.mp4', ''),
                 url: `https://storage.googleapis.com/${
                     CONFIG.BUCKET_NAME
                 }/${encodeURIComponent(item.name)}`,
@@ -91,7 +130,10 @@ async function fetchHookVideosFromGcs() {
     }
 }
 
-const uploadFileToGcsBucket = async (bucketName, file) => {
+const uploadFileToGcsBucket = async (
+    bucketName: string,
+    file: File
+): Promise<string> => {
     const url = `https://storage.googleapis.com/${bucketName}/${file.name}`;
 
     console.log('Uploading file to:', url);
@@ -112,8 +154,9 @@ const uploadFileToGcsBucket = async (bucketName, file) => {
 };
 
 // Function to fetch the Creatomate API key from the server
-async function fetchCreatomateApiKey() {
+async function fetchCreatomateApiKey(): Promise<string> {
     try {
+        // Remove hooksTool to test locally
         const response = await fetch('hooksTool/api/creatomate_key');
         if (!response.ok) {
             throw new Error('Failed to fetch Creatomate API key from server.');
@@ -126,7 +169,12 @@ async function fetchCreatomateApiKey() {
     }
 }
 
-async function uploadToCreatomate(mainVideoUrl, hookVideo, adName, apiKey) {
+async function uploadToCreatomate(
+    mainVideoUrl: string,
+    hookVideo: { name: string; url: string },
+    adName: string,
+    apiKey: string
+): Promise<CreatomateRenderResponse> {
     const url = 'https://api.creatomate.com/v1/renders';
 
     const { name: hookVideoName, url: hookVideoUrl } = hookVideo;
@@ -178,7 +226,11 @@ async function uploadToCreatomate(mainVideoUrl, hookVideo, adName, apiKey) {
  * @param {string} status
  * @param {boolean} disabled
  */
-function updateSubmitButtonStatus(button, status, disabled) {
+function updateSubmitButtonStatus(
+    button: HTMLButtonElement,
+    status: string,
+    disabled: boolean
+): void {
     button.textContent = status;
     button.disabled = disabled;
 }
@@ -188,13 +240,16 @@ function updateSubmitButtonStatus(button, status, disabled) {
  * @param {Object} hookVideo
  * @returns {HTMLElement}
  */
-function createHookVideoElement({ name, url }) {
+function createHookVideoElement(hookVideo: {
+    name: string;
+    url: string;
+}): HTMLElement {
     const itemDiv = document.createElement('div');
     itemDiv.classList.add('hook-video-item');
 
     const videoEl = document.createElement('video');
     videoEl.controls = true;
-    videoEl.src = url;
+    videoEl.src = hookVideo.url;
     itemDiv.appendChild(videoEl);
 
     // Create a label element to act as the clickable container
@@ -203,15 +258,16 @@ function createHookVideoElement({ name, url }) {
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = `checkbox-${name}`;
+    checkbox.id = `checkbox-${hookVideo.name}`;
     checkbox.classList.add('hook-checkbox');
 
     // Event listener for checkbox changes
-    checkbox.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            state.selectedHookVideos.add(name);
+    checkbox.addEventListener('change', (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        if (target.checked) {
+            state.selectedHookVideos.add(hookVideo.name);
         } else {
-            state.selectedHookVideos.delete(name);
+            state.selectedHookVideos.delete(hookVideo.name);
         }
     });
 
@@ -236,7 +292,7 @@ function createHookVideoElement({ name, url }) {
  * Validates the form data before submission
  * @returns {string|null} Error message if validation fails, null if successful
  */
-function validateSubmission() {
+function validateSubmission(): string | null {
     if (!state.mainVideoFile) {
         return 'Please select a main video first!';
     }
@@ -258,8 +314,12 @@ function validateSubmission() {
  * @param {Event} event
  * @param {HTMLVideoElement} videoPlayer
  */
-function handleMainVideoSelection(event, videoPlayer) {
-    const file = event.target.files[0];
+function handleMainVideoSelection(
+    event: Event,
+    videoPlayer: HTMLVideoElement
+): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files ? input.files[0] : null;
     if (!file) return;
 
     state.mainVideoFile = file;
@@ -283,8 +343,9 @@ function handleMainVideoSelection(event, videoPlayer) {
  * Handles ad name input changes
  * @param {Event} event
  */
-function handleAdNameInput(event) {
-    state.adName = event.target.value.trim();
+function handleAdNameInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    state.adName = input.value.trim();
 }
 
 /**
@@ -292,7 +353,10 @@ function handleAdNameInput(event) {
  * @param {HTMLButtonElement} selectAllButton
  * @param {NodeList} checkboxes
  */
-function handleSelectAll(selectAllButton, checkboxes) {
+function handleSelectAll(
+    selectAllButton: HTMLButtonElement,
+    checkboxes: NodeListOf<HTMLInputElement>
+): void {
     state.allHooksSelected = !state.allHooksSelected;
     selectAllButton.textContent = state.allHooksSelected
         ? 'Deselect All'
@@ -315,9 +379,13 @@ function handleSelectAll(selectAllButton, checkboxes) {
  * @param {string} apiKey
  * @returns {Promise}
  */
-async function processVideos(mainVideoUrl, hookVideos, apiKey) {
+async function processVideos(
+    mainVideoUrl: string,
+    hookVideos: Array<{ name: string; url: string }>,
+    apiKey: string
+): Promise<CreatomateRenderResponse[]> {
     const creatomatePromises = Array.from(state.selectedHookVideos).map(
-        async (hookVideoName) => {
+        async (hookVideoName: string) => {
             const hookVideo = hookVideos.find(
                 (video) => video.name === hookVideoName
             );
@@ -341,7 +409,10 @@ async function processVideos(mainVideoUrl, hookVideos, apiKey) {
  * @param {HTMLButtonElement} submitButton
  * @param {Array} hookVideos
  */
-async function handleSubmit(submitButton, hookVideos) {
+async function handleSubmit(
+    submitButton: HTMLButtonElement,
+    hookVideos: Array<{ name: string; url: string }>
+): Promise<void> {
     const validationError = validateSubmission();
     if (validationError) {
         alert(validationError);
@@ -357,7 +428,7 @@ async function handleSubmit(submitButton, hookVideos) {
 
         const mainVideoUrl = await uploadFileToGcsBucket(
             CONFIG.BUCKET_NAME,
-            state.mainVideoFile
+            state.mainVideoFile as File
         );
         console.log('Main video upload completed successfully!');
 
@@ -375,7 +446,7 @@ async function handleSubmit(submitButton, hookVideos) {
         console.log('All videos processed with Creatomate:', results);
 
         alert('Video processing complete!');
-    } catch (error) {
+    } catch (error: any) {
         console.error('❌ Process failed:', error);
         alert(`Processing failed: ${error.message}`);
     } finally {
@@ -389,16 +460,24 @@ async function handleSubmit(submitButton, hookVideos) {
 
 window.addEventListener('DOMContentLoaded', async () => {
     // Get DOM elements
-    const mainVideoUpload = document.getElementById('main-video-upload');
-    const mainVideoPlayer = document.getElementById('main-video-player');
+    const mainVideoUpload = document.getElementById(
+        'main-video-upload'
+    ) as HTMLInputElement;
+    const mainVideoPlayer = document.getElementById(
+        'main-video-player'
+    ) as HTMLVideoElement;
     const hookVideosContainer = document.getElementById(
         'hook-videos-container'
-    );
+    ) as HTMLElement;
     const selectAllHooksButton = document.getElementById(
         'select-all-hooks-button'
-    );
-    const submitButton = document.getElementById('submit-button');
-    const adNameInput = document.getElementById('ad-name-input');
+    ) as HTMLButtonElement;
+    const submitButton = document.getElementById(
+        'submit-button'
+    ) as HTMLButtonElement;
+    const adNameInput = document.getElementById(
+        'ad-name-input'
+    ) as HTMLInputElement;
 
     // Initialize main video handling
     mainVideoUpload.addEventListener('change', (e) =>
@@ -417,10 +496,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize select all functionality
     selectAllHooksButton.addEventListener('click', () => {
-        handleSelectAll(
-            selectAllHooksButton,
-            document.querySelectorAll('.hook-checkbox')
-        );
+        const checkboxes = document.querySelectorAll(
+            '.hook-checkbox'
+        ) as NodeListOf<HTMLInputElement>;
+        handleSelectAll(selectAllHooksButton, checkboxes);
     });
 
     // Initialize submit handling

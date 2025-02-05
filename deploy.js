@@ -13,7 +13,7 @@ const envVars = Object.entries(envConfig)
     .join(',');
 
 const functionName = 'hooksTool';
-const runtime = 'nodejs18';
+const runtime = 'nodejs20';
 const entryPoint = 'hooksTool';
 const memory = '1GB';
 

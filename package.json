@@ -1,19 +1,27 @@
 {
-  "name": "hook-tool",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "functions-framework --target=hooksTool",
-    "deploy": "node deploy.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@google-cloud/functions-framework": "^3.4.5",
-    "@google-cloud/storage": "^7.15.0",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2"
-  }
+    "name": "hook-tool",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc && cpx 'public/**/*.{html,js,css}' dist/public",
+        "start": "npm run build && functions-framework --target=hooksTool --source=dist/",
+        "predeploy": "npm run build",
+        "deploy": "node deploy.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "@google-cloud/functions-framework": "^3.4.5",
+        "@google-cloud/storage": "^7.15.0",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.13.1",
+        "cpx": "^1.5.0",
+        "typescript": "^5.7.3"
+    }
 }
