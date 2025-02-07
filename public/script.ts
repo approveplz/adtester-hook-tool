@@ -207,9 +207,18 @@ async function uploadToCreatomate(
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log('Creatomate response:', result);
-        return result;
+        // Debug response details
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers));
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        try {
+            return JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('JSON Parse Error:', parseError);
+            throw new Error(`Failed to parse response: ${responseText}`);
+        }
     } catch (error) {
         console.error('Error uploading to Creatomate:', error);
         throw error;
